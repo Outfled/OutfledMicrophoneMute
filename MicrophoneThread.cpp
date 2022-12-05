@@ -27,6 +27,9 @@ DWORD WINAPI MicrophoneStatusThread( LPVOID lpParam )
 
 		while (TRUE)
 		{
+			// Add sleep to prevent high cpu usage
+			Sleep( 30 );
+			
 			/* Microphone not set */
 			if (0 == wcslen( DlgWnd->m_szMicrophoneDevice ))
 			{
