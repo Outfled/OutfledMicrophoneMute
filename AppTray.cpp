@@ -12,25 +12,25 @@
 
 //--------------------
 // Global Variables
-static HWND				g_hTrayWnd;
-static WNDCLASSEX		g_WndClass;
-static HMODULE			g_hInstance;
-static CWnd				*g_pAppWnd;
+static HWND		g_hTrayWnd;
+static WNDCLASSEX	g_WndClass;
+static HMODULE		g_hInstance;
+static CWnd		*g_pAppWnd;
 static PNOTIFYICONDATA	g_lpIconData;
 
 static LRESULT TrayIconProcedure( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-static BOOL	CreateTrayWndClass();
+static BOOL CreateTrayWndClass();
 
 
 DWORD WINAPI AppTrayIconThread( LPVOID lpParam )
 {
-	MSG							WndMsg;
+	MSG				WndMsg;
 	COutfledMicrophoneMuteDlg	*DlgWnd;
 
-	DlgWnd			= (COutfledMicrophoneMuteDlg*)lpParam;
-	g_hTrayWnd		= NULL;
-	g_hInstance		= GetModuleHandle( nullptr );
-	g_pAppWnd		= DlgWnd;
+	DlgWnd		= (COutfledMicrophoneMuteDlg*)lpParam;
+	g_hTrayWnd	= NULL;
+	g_hInstance	= GetModuleHandle( nullptr );
+	g_pAppWnd	= DlgWnd;
 	g_lpIconData	= nullptr;
 
 	/* Create hidden window class */
@@ -63,6 +63,7 @@ DWORD WINAPI AppTrayIconThread( LPVOID lpParam )
 	/* Get tray icon window messages */
 	while (GetMessage( &WndMsg, NULL, 0, 0 ))
 	{
+		Sleep(0);
 		TranslateMessage( &WndMsg );
 		DispatchMessageW( &WndMsg );
 	}
@@ -118,15 +119,15 @@ static LRESULT TrayIconProcedure( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		/* Create icon */
 	case WM_CREATE:
 		{
-			g_lpIconData					= new NOTIFYICONDATA{};
-			g_lpIconData->cbSize			= sizeof( *g_lpIconData );
-			g_lpIconData->hWnd				= hWnd;
-			g_lpIconData->uID				= 0;
-			g_lpIconData->uFlags			= NIF_MESSAGE | NIF_ICON | NIF_TIP | NIF_SHOWTIP | NIF_INFO;
+			g_lpIconData			= new NOTIFYICONDATA{};
+			g_lpIconData->cbSize		= sizeof( *g_lpIconData );
+			g_lpIconData->hWnd		= hWnd;
+			g_lpIconData->uID		= 0;
+			g_lpIconData->uFlags		= NIF_MESSAGE | NIF_ICON | NIF_TIP | NIF_SHOWTIP | NIF_INFO;
 			g_lpIconData->uCallbackMessage	= TRAY_ICON_CALLBACK;
-			g_lpIconData->uVersion			= NOTIFYICON_VERSION_4;
-			g_lpIconData->dwInfoFlags		= NIIF_INFO;
-			g_lpIconData->hIcon				= g_pAppWnd->GetIcon( TRUE );
+			g_lpIconData->uVersion		= NOTIFYICON_VERSION_4;
+			g_lpIconData->dwInfoFlags	= NIIF_INFO;
+			g_lpIconData->hIcon		= g_pAppWnd->GetIcon( TRUE );
 
 			/* Notification title */
 			StringCbCopy( g_lpIconData->szInfoTitle, sizeof( g_lpIconData->szInfoTitle ), L"Outfled Microphone Mute" ); 
@@ -152,15 +153,15 @@ static LRESULT TrayIconProcedure( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			/* Popup menu */
 			if (LOWORD( lParam ) == WM_CONTEXTMENU)
 			{
-				POINT			Cursor;
-				HMENU			PopupMenu;
+				POINT		Cursor;
+				HMENU		PopupMenu;
 				MENUITEMINFO	ItemInfo;
-				UINT			Result;
+				UINT		Result;
 
 				ItemInfo.cbSize = sizeof( ItemInfo );
 				ItemInfo.fMask	= MIIM_FTYPE;
 				ItemInfo.fType	= MFT_SEPARATOR;
-				PopupMenu		= CreatePopupMenu();
+				PopupMenu	= CreatePopupMenu();
 
 				/* Create popup menu options */
 				InsertMenu( PopupMenu,
@@ -223,9 +224,9 @@ static LRESULT TrayIconProcedure( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 static BOOL	CreateTrayWndClass()
 {
-	g_WndClass					= { 0 };
-	g_WndClass.cbSize			= sizeof( WNDCLASSEX );
-	g_WndClass.style			= CS_HREDRAW | CS_VREDRAW;
+	g_WndClass			= { 0 };
+	g_WndClass.cbSize		= sizeof( WNDCLASSEX );
+	g_WndClass.style		= CS_HREDRAW | CS_VREDRAW;
 	g_WndClass.lpfnWndProc		= TrayIconProcedure;
 	g_WndClass.hInstance		= g_hInstance;
 	g_WndClass.lpszClassName	= TRAY_WNDCLASS_NAME;
