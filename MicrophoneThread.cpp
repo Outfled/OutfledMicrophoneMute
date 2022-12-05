@@ -10,11 +10,11 @@
 #pragma comment ( lib, "Winmm.lib" )
 
 #define MUTED_SOUND_EFFECT		L"sound\\muted.wav"
-#define UNMUTED_SOUND_EFFECT	L"sound\\unmuted.wav"
+#define UNMUTED_SOUND_EFFECT		L"sound\\unmuted.wav"
 
 DWORD WINAPI MicrophoneStatusThread( LPVOID lpParam )
 {
-	HRESULT						Result;
+	HRESULT				Result;
 	COutfledMicrophoneMuteDlg	*DlgWnd;
 
 	DlgWnd = (COutfledMicrophoneMuteDlg *)lpParam;
