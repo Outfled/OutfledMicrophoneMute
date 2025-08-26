@@ -462,27 +462,30 @@ DWORD InjectOverlayModule(DWORD dwProcessId, LPCWSTR lpszBinaryExe, LPCWSTR lpsz
 
 	StartupInfo.cb = sizeof(StartupInfo);
 
+	GetCurrentDirectory(MAX_PATH, szBuffer);
+
 	/* Format the full path of the overlay module (dll) file */
-	StringCbPrintf(szBuffer,
-		sizeof(szBuffer),
-		L"%s\\%s",
+	StringCbPrintf(szOverlayModFullPath,
+		sizeof(szOverlayModFullPath),
+		L"%s\\%s\\%s",
+		szBuffer,
 		OUTFLED_OVERLAY_DIRECTORY,
 		lpszOverlayModule
 	);
-	GetFullPathName(szBuffer, MAX_PATH, szOverlayModFullPath, NULL);
+	PathQuoteSpaces(szOverlayModFullPath);
 
 	//
 	// Format the full path of the overlay helper exe file
 	if (0 == _wcsicmp(lpszOverlayModule, OUTFLED_OVERLAY_MODULE_NAME32))
 	{
-		StringCbPrintf(szBuffer, sizeof(szBuffer), L"%s\\OverlayHelper.exe", OUTFLED_OVERLAY_DIRECTORY);
-		GetFullPathName(szBuffer, MAX_PATH, szOverlayHelperPath, NULL);
+		StringCbPrintf(szOverlayHelperPath, sizeof(szOverlayHelperPath), L"%s\\%s\\OverlayHelper.exe", szBuffer,OUTFLED_OVERLAY_DIRECTORY);
 	}
 	else
 	{
-		StringCbPrintf(szBuffer, sizeof(szBuffer), L"%s\\OverlayHelper64.exe", OUTFLED_OVERLAY_DIRECTORY);
-		GetFullPathName(szBuffer, MAX_PATH, szOverlayHelperPath, NULL);
+		StringCbPrintf(szOverlayHelperPath, sizeof(szOverlayHelperPath), L"%s\\%s\\OverlayHelper64.exe", szBuffer, OUTFLED_OVERLAY_DIRECTORY);
 	}
+
+	PathQuoteSpaces(szOverlayHelperPath);
 
 	/* Format the arguments for overlay helper */
 	StringCbPrintf(szProcessCmdLine,
@@ -508,7 +511,7 @@ DWORD InjectOverlayModule(DWORD dwProcessId, LPCWSTR lpszBinaryExe, LPCWSTR lpsz
 	);
 	if (bSuccess)
 	{
-		DWORD dwResult = WaitForSingleObject(ProcessInfo.hProcess, 1000);
+		DWORD dwResult = WaitForSingleObject(ProcessInfo.hProcess, 4000);
 		if (dwResult != WAIT_OBJECT_0) {
 			TerminateProcess(ProcessInfo.hProcess, OVERLAY_ERROR_UNKNOWN);
 		}

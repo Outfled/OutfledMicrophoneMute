@@ -23,8 +23,10 @@ private:
 	HANDLE	m_hAppTrayThread;
 
 private:
+	VOID UpdateHotkeys();
 	VOID SelectCurrentOverlayImagePositionCB();
 	VOID SelectCurrentOverlayImageSizeCB();
+
 public:
 	BOOL		m_bNotificationsEnabled;
 	BOOL		m_bSoundEnabled;

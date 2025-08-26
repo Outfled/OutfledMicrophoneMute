@@ -389,14 +389,7 @@ void COutfledMicrophoneMuteDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	{
 		static bool bFirstTime = TRUE;
 
-		CHotKeyCtrl *pHotKey = ( (CHotKeyCtrl *)GetDlgItem( IDC_HOTKEY_SHORTCUTKEYS ) );
-
-		// Get the current hotkeys
-		pHotKey->GetHotKey( (WORD &)m_dwHotkeys, m_wModifiers );
-
-		// Update the registry default hotkeys
-		SetAppRegistryValue( APP_REG_VALUE_DEFAULT_HOTKEYS, &m_dwHotkeys, sizeof( DWORD ) );
-		SetAppRegistryValue( APP_REG_VALUE_HK_MODIFIERS, &m_wModifiers, sizeof( WORD ) );
+		UpdateHotkeys();
 
 		// Hide the window
 		if ( m_bTrayEnabled )
@@ -754,6 +747,19 @@ void COutfledMicrophoneMuteDlg::OnCbnSelchangeComboImagesize()
 	/* Update the registry */
 	SetAppRegistryValue(APP_REG_VALUE_OVERLAY_IMG_WIDTH, &dwNewWidth, sizeof(DWORD));
 	SetAppRegistryValue(APP_REG_VALUE_OVERLAY_IMG_HEIGHT, &dwNewHeight, sizeof(DWORD));
+}
+
+// Update the mute/unmute hotkeys registry value
+VOID COutfledMicrophoneMuteDlg::UpdateHotkeys()
+{
+	CHotKeyCtrl *pHotKey = ((CHotKeyCtrl *)GetDlgItem(IDC_HOTKEY_SHORTCUTKEYS));
+
+	// Get the current hotkeys
+	pHotKey->GetHotKey((WORD &)m_dwHotkeys, m_wModifiers);
+
+	// Update the registry default hotkeys
+	SetAppRegistryValue(APP_REG_VALUE_DEFAULT_HOTKEYS, &m_dwHotkeys, sizeof(DWORD));
+	SetAppRegistryValue(APP_REG_VALUE_HK_MODIFIERS, &m_wModifiers, sizeof(WORD));
 }
 
 // Select the overlay image position text from the 'Image Position' combo-box (dropdown-box) =
