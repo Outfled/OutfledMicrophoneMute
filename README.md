@@ -66,4 +66,4 @@ To modify the image size height (in pixels):
 
 
 # Help/Contact
-For any questions or concerns, my discord is **outfled**
+For any questions or concerns, my discord is ***outfled***
