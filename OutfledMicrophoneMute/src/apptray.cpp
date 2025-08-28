@@ -65,6 +65,9 @@ DWORD WINAPI AppTrayIconThread( LPVOID lpData )
 		ExitProcess( 0 );
 	}
 
+	//
+	// Whenever Windows Explorer is restarted, all tray icons are destroyed
+	// RegisterWindowMessage(L"TaskbarCreated") will allow the WndProc to receive a message when this occurs
 	g_nTaskbarCreatedMsg = RegisterWindowMessage(L"TaskbarCreated");
 	ChangeWindowMessageFilterEx(g_hTrayWindow, g_nTaskbarCreatedMsg, MSGFLT_ALLOW, NULL);
 	ChangeWindowMessageFilterEx(g_hTrayWindow, WM_COMMAND, MSGFLT_ALLOW, NULL);
@@ -136,6 +139,10 @@ BOOL SetTrayIconTitle( LPCWSTR lpszTitle )
 #pragma warning( disable : 28183 )	// (Pointer) could be 0
 static LRESULT TrayIconProcedure( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
+	if (uMsg == g_nTaskbarCreatedMsg) {
+		uMsg = WM_CREATE;
+	}
+
 	switch (uMsg)
 	{
 	// Create tray icon
