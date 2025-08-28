@@ -3,6 +3,9 @@ Windows 10/11 Program to mute/unmute your microphone using key binds
 
 <img width="331" height="365" alt="Capture" src="https://github.com/user-attachments/assets/ce509cb2-8f6a-426a-8836-a34a918c133f" />
 
+## __Download__:
+To download, visit the [Releases](https://github.com/Outfled/OutfledMicrophoneMute/releases) and download the MSI installer
+
 ## Features
 
 -Mizimize to Tray
@@ -66,4 +69,4 @@ To modify the image size height (in pixels):
 
 
 # Help/Contact
-For any questions or concerns, my discord is **outfled**
+For any questions or concerns, my discord is ***outfled***
