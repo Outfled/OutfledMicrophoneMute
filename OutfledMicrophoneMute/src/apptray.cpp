@@ -12,7 +12,6 @@ static WNDCLASSEX					g_WindowClass;
 static HMODULE						g_hInstance;
 static COutfledMicrophoneMuteDlg	*g_pAppWindow;
 static PNOTIFYICONDATA				g_pIconData;
-static HMENU						g_hPopupMenu;
 static UINT							g_nTaskbarCreatedMsg;
 
 static LRESULT TrayIconProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -148,8 +147,6 @@ static LRESULT TrayIconProcedure( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	// Create tray icon
 		case WM_CREATE:
 		{
-			g_hPopupMenu = NULL;
-
 			/* Initialize the tray icon data */
 			g_pIconData						= (PNOTIFYICONDATA)LocalAlloc( LPTR, sizeof( NOTIFYICONDATA ) );
 			g_pIconData->cbSize				= sizeof( NOTIFYICONDATA );
@@ -239,52 +236,51 @@ static LRESULT TrayIconProcedure( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 int ShowTrayContextMenu()
 {
-	POINT Cursor{};
+	POINT			Cursor{};
+	MENUITEMINFO	miiSeparator{};
+	HMENU			hPopupMenu;
 
-	if (g_hPopupMenu == NULL)
-	{
-		MENUITEMINFO miiSeparator = { 0 };
-		miiSeparator.cbSize = sizeof(MENUITEMINFO);
-		miiSeparator.fMask	= MIIM_FTYPE;
-		miiSeparator.fType	= MFT_SEPARATOR;
+	miiSeparator.cbSize = sizeof(MENUITEMINFO);
+	miiSeparator.fMask	= MIIM_FTYPE;
+	miiSeparator.fType	= MFT_SEPARATOR;
 
-		//
-		// Create & initialize the menu
-		g_hPopupMenu = CreatePopupMenu();
+	hPopupMenu = CreatePopupMenu();
 
-		InsertMenu(g_hPopupMenu,
-			0,
-			(g_pAppWindow->IsWindowVisible()) ? MF_GRAYED : 0 | MF_STRING | MF_BYCOMMAND,
-			TRAY_MENU_ID_OPEN_APP,
-			L"Show Window"
-		);
-		InsertMenuItem(g_hPopupMenu, 1, TRUE, &miiSeparator);
+	//
+	// Initialize the menu
+	InsertMenu(hPopupMenu,
+		0,
+		((g_pAppWindow->IsWindowVisible()) ? MF_GRAYED : 0) | MF_STRING | MF_BYCOMMAND,
+		TRAY_MENU_ID_OPEN_APP,
+		L"Show Window"
+	);
+	InsertMenuItem(hPopupMenu, 1, TRUE, &miiSeparator);
 
-		InsertMenu(g_hPopupMenu,
-			2,
-			(g_pAppWindow->m_bMuted) ? MF_GRAYED | MF_GRAYED : MF_BYCOMMAND,
-			TRAY_MENU_ID_MUTE_MIC,
-			L"Mute Microphone"
-		);
-		InsertMenuItem(g_hPopupMenu, 3, TRUE, &miiSeparator);
+	InsertMenu(hPopupMenu,
+		2,
+		((g_pAppWindow->m_bMuted) ? MF_GRAYED : 0) | MF_STRING | MF_BYCOMMAND,
+		TRAY_MENU_ID_MUTE_MIC,
+		L"Mute Microphone"
+	);
+	InsertMenuItem(hPopupMenu, 3, TRUE, &miiSeparator);
 
-		InsertMenu(g_hPopupMenu,
-			4,
-			(g_pAppWindow->m_bMuted) ? MF_BYCOMMAND | MF_BYCOMMAND : MF_GRAYED,
-			TRAY_MENU_ID_UNMUTE_MIC,
-			L"Unmute Microphone"
-		);
-		InsertMenuItem(g_hPopupMenu, 5, TRUE, &miiSeparator);
+	InsertMenu(hPopupMenu,
+		4,
+		((!g_pAppWindow->m_bMuted) ? MF_GRAYED : 0) | MF_STRING | MF_BYCOMMAND,
+		TRAY_MENU_ID_UNMUTE_MIC,
+		L"Unmute Microphone"
+	);
+	InsertMenuItem(hPopupMenu, 5, TRUE, &miiSeparator);
 
-		InsertMenu(g_hPopupMenu, 6, MF_BYCOMMAND, TRAY_MENU_ID_EXIT_APP, L"Exit");
-	}
+	InsertMenu(hPopupMenu, 6, MF_BYCOMMAND, TRAY_MENU_ID_EXIT_APP, L"Exit");
+
 
 	//
 	// Display the popup menu & get the clicked item id
 	SetForegroundWindow(g_hTrayWindow);
 	GetCursorPos(&Cursor);
 
-	return TrackPopupMenu(g_hPopupMenu,
+	int iResult = TrackPopupMenu(hPopupMenu,
 		TPM_CENTERALIGN | TPM_RIGHTBUTTON | TPM_VERNEGANIMATION | TPM_VERPOSANIMATION | TPM_RETURNCMD,
 		Cursor.x,
 		Cursor.y,
@@ -292,4 +288,7 @@ int ShowTrayContextMenu()
 		g_hTrayWindow,
 		NULL
 	);
+	DestroyMenu(hPopupMenu);
+
+	return iResult;
 }
